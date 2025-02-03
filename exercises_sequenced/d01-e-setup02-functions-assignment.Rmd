@@ -38,13 +38,15 @@ Get help on the built-in `rnorm` function.
 
 ```{r rnorm-help, eval=FALSE}
 ## Your code here
-```
+?rnorm
+
+
 
 ## (Not) Executing functions
 
-If we try to run a function without using parentheses, we get some odd behavior:
+rnorm
 
-```{r}
+
 ## NOTE: No need to edit; run and inspect
 rbind
 ```
@@ -57,6 +59,7 @@ Show the source code for `lm`.
 
 ```{r rnorm-source}
 ## Your code here
+lm
 ```
 
 ## Executing functions (for real)
@@ -107,7 +110,7 @@ Using either the documentation or the source, determine the arguments for `rnorm
 Using what you learned in q3, generate a random sample of size `n = 10` using `rnorm`.
 
 ```{r}
-## Write your code here
+rnorm(10)
 ```
 
 ## Adapting examples
@@ -127,6 +130,11 @@ Look up the documentation for the function `tribble`, and figure out how to crea
 
 ```{r}
 ## Write your code here
+u <- c(1,2)
+w <- c(3,4)
+x <-as_tibble_col(u,column_name = "u")
+y <-as_tibble_col(w,column_name = "w")
+
 ```
 
 
