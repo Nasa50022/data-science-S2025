@@ -55,9 +55,19 @@ In this first stage, you will explore the `diamonds` dataset and document your o
 ```{r q1-task}
 ## TASK: Plot `price` vs `carat` below
 ## Your code here!
+library(ggplot2)
+ggplot(diamonds, aes(x=seq_along(carat), y=price))+
+  geom_line(color="gold")+
+  ggtitle("price vs carat")+
+  ylab("Price ($)")+
+  xlab("mass(carats)")
+  
 ```
 
 **Observations**:
+waow its urine yellow color :D
+
+i thought a line plot wouldnt have it go down all the time but im not sure if there are data points at zero between the actual data or if I misconfigured the settings.
 
 - (Write your observations here!)
 
@@ -66,11 +76,22 @@ In this first stage, you will explore the `diamonds` dataset and document your o
 ```{r q2-task}
 ## TASK: Plot `price`, `carat`, and `cut` below
 ## Your code here!
+
+
+library(ggplot2)
+ggplot(diamonds, aes(x=carat, y=price, color=cut))+
+  geom_point()+
+  facet_wrap(~cut)+
+  ggtitle("Scatter Plot Faceted by Cylinders of price vs carat vs cut")+
+  ylab("price($)")
+  xlab("mass(carat)")
+  
+
 ```
 
 **Observations**:
 
-- (Write your observations here!)
+i was struggling to get proper labels working with the multi faceted plot.
 
 
 # Communication
