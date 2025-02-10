@@ -1,6 +1,6 @@
 ---
 title: "Michelson Speed-of-light Measurements"
-author: "(Your name here)"
+author: "Rohan Giancaspro"
 date: 2020-
 output: 
   github_document:
@@ -50,7 +50,7 @@ LIGHTSPEED_MICHELSON <- 299944.00  # Michelson's speed estimate (km / s)
 LIGHTSPEED_PM        <- 51         # Michelson error estimate (km / s)
 ```
 
-*Background*: In 1879 Albert Michelson led an experimental campaign to measure the speed of light. His approach was a development upon the method of Foucault[3], and resulted in a new estimate of $v_0 = 299944 \pm 51$ kilometers per second (in a vacuum). This is very close to the modern *exact* value of `r LIGHTSPEED_VACUUM`. In this challenge, you will analyze Michelson's original data, and explore some of the factors associated with his experiment.
+*Background*: In 1879 Albert Michelson led an experimental campaign to measure the speed of light. His approach was a d?evelopment upon the method of Foucault[3], and resulted in a new estimate of $v_0 = 299944 \pm 51$ kilometers per second (in a vacuum). This is very close to the modern *exact* value of `r LIGHTSPEED_VACUUM`. In this challenge, you will analyze Michelson's original data, and explore some of the factors associated with his experiment.
 
 I've already copied Michelson's data from his 1880 publication; the code chunk below will load these data from a public googlesheet.
 
@@ -85,7 +85,12 @@ df_michelson %>% glimpse()
 
 ```{r q1-task}
 ## TODO: Compute summaries
-df_q1 <- NA
+df_q1 <- df_michelson %>% 
+  group_by(Distinctness) %>% 
+  summarise(
+    n = n(),
+    MeanVelocity = mean(Velocity)
+    ) 
 df_q1 %>%
   arrange(desc(Distinctness)) %>%
   knitr::kable()
@@ -93,9 +98,9 @@ df_q1 %>%
 
 **Observations**:
 - Write your observations here!
-  - (Your response here)
+  - Seems easy enough i figured it out.
 - Why might your table differ from Michelson's?
-  - (Your response here)
+  - Perhaps Michelsons numbers were a broader coarser estimate where he rounded up way more then the computer's numerical calcualtion?
 
 The `Velocity` values in the dataset are the speed of light *in air*; Michelson
 introduced a couple of adjustments to estimate the speed of light in a vacuum.
@@ -108,10 +113,11 @@ observations in the dataset.
 
 ```{r q2-task}
 ## TODO: Adjust the data, assign to df_q2
-df_q2 <- NA
+df_q2 <- df_michelson %>% 
+  mutate(VelocityVacuum = Velocity + 92)
 
 df_q2
-```
+``` 
 
 As part of his study, Michelson assessed the various potential sources of error,
 and provided his best-guess for the error in his speed-of-light estimate. These
@@ -137,13 +143,15 @@ problems uncertainty includes some amount of human judgment.[2]
 ```{r q3-task}
 ## TODO: Compare Michelson's estimate and error against the true value
 ## Your code here!
+abs(LIGHTSPEED_VACUUM - LIGHTSPEED_MICHELSON) - LIGHTSPEED_PM ##abs to just show error magnitude not sign and then subtracting from his PM estimate to compare his uncertantiy against true error
+abs(LIGHTSPEED_VACUUM - LIGHTSPEED_MICHELSON) ##see prev
 ```
 
 **Observations**:
 - Is Michelson's estimate of the error (his uncertainty) greater or less than the true error?
-  - (Your response here)
+  - His estimated error is less then the true error.
 - Make a quantitative comparison between Michelson's uncertainty and his error.
-  - (Your response here)
+  - The actual difference between the true error of his estimate from reality and the calculated error margin ins 100.542 km/s
 
 The following plot shows all of Michelson's data as a [control chart](https://en.wikipedia.org/wiki/Control_chart); this sort of plot is common in manufacturing, where it is used to help determine if a manufacturing process is under [statistical control](https://en.wikipedia.org/wiki/Statistical_process_control). Each dot is one of Michelson's measurements, and the grey line connects the mean taken for each day. The same plot also shows simulated data using a probability model. We'll get into statistics later in the course; for now, let's focus on understanding what real and simulated data tend to look like.
 
@@ -208,15 +216,36 @@ df_q2 %>%
 
 **Observations**:
 Similarities
-- (your responses here)
+- Generally both have the same average value, Both have a wide spread of data.
 Differences
-- (your responses here)
+- The simulated data is a little more consistent then the real data. I think a little more of the data points on the Sim graph are outliers but im not sure.
 
 ### __q5__ You have access to a few other variables. Construct a **at least three** visualizations of `VelocityVacuum` against these other factors. Are there other patterns in the data that might help explain the difference between Michelson's estimate and `LIGHTSPEED_VACUUM`?
+```{r}
+
+df_q2 %>% ggplot(aes(x=Temp,y=VelocityVacuum))+
+  geom_line()+
+  ggtitle("Speed of light in vacuum estimation as affected by Temperature")+
+  xlab("Temperature (Deg F)")+
+  ylab("Speed of light Vaccum (km/s)")
+
+df_q2 %>% ggplot(aes(x=Distinctness,y=VelocityVacuum))+
+  geom_point()+
+  ggtitle("Speed of light in vacuum estimation as affected by data quality")+
+  xlab("Data Quality (3 = good, 2 = fair, 1 = poor)")+
+  ylab("Speed of light Vaccum (km/s)")
+
+df_q2 %>% ggplot(aes(x=Temp,y=VelocityVacuum, color = Distinctness))+
+  geom_point()+
+  ggtitle("Speed of light in vacuum estimation as affected by Temperature")+
+  xlab("Temperature (Deg F)")+
+  ylab("Speed of light Vaccum (km/s)")
+
+```
+
 
 **Observations**:
-
-- Make sure to record observations on your graphs!
+A few patterns that I noticed in the graphs that might explain the difference between his estimate and the IRL speed of light is that the lower quality data points tend to noticeably record a lower speed vs the fair and high quality points.This is also reflected in the very erratic temperature graph. This inaccuracy is very likely the reason why his estimate is off from the actual lightspeed measurement.
 
 
 
