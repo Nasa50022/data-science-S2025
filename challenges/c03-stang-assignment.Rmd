@@ -67,7 +67,14 @@ Note that these data are not tidy! The data in this form are convenient for repo
 ```{r q1-task}
 ## TASK: Tidy `df_stang`
 df_stang_long <-
-  df_stang
+  df_stang %>%
+    pivot_longer(
+    names_to = c(".value", "angle"),
+    names_sep = "_",
+     cols = c(-thick, -alloy)
+  )%>%
+mutate(angle = as.integer(angle))%>%
+  filter(if_all(everything(), ~ . >= 0))
 
 df_stang_long
 ```
