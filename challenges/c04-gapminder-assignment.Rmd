@@ -56,12 +56,14 @@ First, we'll go through a round of *guided EDA*. Try to pay attention to the hig
 dataset?
 
 ```{r q0-task}
-## TASK: Do your "first checks" here!
+gapminder
+
 ```
 
 **Observations**:
 
-- Write all variable names here
+- Variables: Country, Continent, Year, Life expectancy, population, GDP Per Capita.
+- Data set seems pretty tidy to me. I dont think I need to clean it up.
 
 ### __q1__ Determine the most and least recent years in the `gapminder` dataset.
 
