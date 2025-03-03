@@ -13,17 +13,20 @@ prerequisites:
 *Purpose*: Learning to do EDA well takes practice! In this challenge you'll further practice EDA by first completing a guided exploration, then by conducting your own investigation. This challenge will also give you a chance to use the wide variety of visual tools we've been learning.
 
 <!-- include-rubric -->
+
 # Grading Rubric
+
 <!-- -------------------------------------------------- -->
 
 Unlike exercises, **challenges will be graded**. The following rubrics define how you will be graded, both on an individual and team basis.
 
 ## Individual
+
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|----------|----------------|--------------|
-| Effort | Some task __q__'s left unattempted | All task __q__'s attempted |
+|------------------|-----------------------------|-------------------------|
+| Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
 | Assessed | Observations include claims not supported by the data, or reflect a level of certainty not warranted by the data | Observations are appropriately qualified by the quality & relevance of the data and (in)conclusiveness of the support |
@@ -31,10 +34,10 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 | Code Styled | Violations of the [style guide](https://style.tidyverse.org/) hinder readability | Code sufficiently close to the [style guide](https://style.tidyverse.org/) |
 
 ## Submission
+
 <!-- ------------------------- -->
 
 Make sure to commit both the challenge report (`report.md` file) and supporting files (`report_files/` folder) when you are done! Then submit a link to Canvas. **Your Challenge submission is not complete without all files uploaded to GitHub.**
-
 
 ```{r setup}
 library(tidyverse)
@@ -42,18 +45,16 @@ library(gapminder)
 
 ```
 
-*Background*: [Gapminder](https://www.gapminder.org/about-gapminder/) is an
-independent organization that seeks to educate people about the state of the
-world. They seek to counteract the worldview constructed by a hype-driven media
-cycle, and promote a "fact-based worldview" by focusing on data. The dataset
-we'll study in this challenge is from Gapminder.
+*Background*: [Gapminder](https://www.gapminder.org/about-gapminder/) is an independent organization that seeks to educate people about the state of the world. They seek to counteract the worldview constructed by a hype-driven media cycle, and promote a "fact-based worldview" by focusing on data. The dataset we'll study in this challenge is from Gapminder.
 
 # Guided EDA
+
 <!-- -------------------------------------------------- -->
 
 First, we'll go through a round of *guided EDA*. Try to pay attention to the high-level process we're going through---after this guided round you'll be responsible for doing another cycle of EDA on your own!
 
-### __q0__ Perform your "first checks" on the dataset. What variables are in this
+### **q0** Perform your "first checks" on the dataset. What variables are in this
+
 dataset?
 
 ```{r q0-task}
@@ -63,17 +64,20 @@ gapminder
 
 **Observations**:
 
-- Variables: Country, Continent, Year, Life expectancy, population, GDP Per Capita.
-- Data set seems pretty tidy to me. I dont think I need to clean it up.
+-   Variables: Country, Continent, Year, Life expectancy, population, GDP Per Capita.
+-   Data set seems pretty tidy to me. I dont think I need to clean it up.
 
-### __q1__ Determine the most and least recent years in the `gapminder` dataset.
+### **q1** Determine the most and least recent years in the `gapminder` dataset.
 
 *Hint*: Use the `pull()` function to get a vector out of a tibble. (Rather than the `$` notation of base R.)
 
 ```{r q1-task}
 ## TASK: Find the largest and smallest values of `year` in `gapminder`
-year_max <- NA_real_
-year_min <- NA_real_
+library(dplyr)
+gapminder
+
+year_max <- max(pull(gapminder,3))
+year_min <- min(pull(gapminder,3))
 ```
 
 Use the following test to check your work.
@@ -93,23 +97,64 @@ if (is_tibble(year_max)) {
 print("Nice!")
 ```
 
-### __q2__ Filter on years matching `year_min`, and make a plot of the GDP per capita against continent. Choose an appropriate `geom_` to visualize the data. What observations can you make?
+### **q2** Filter on years matching `year_min`, and make a plot of the GDP per capita against continent. Choose an appropriate `geom_` to visualize the data. What observations can you make?
 
 You may encounter difficulties in visualizing these data; if so document your challenges and attempt to produce the most informative visual you can.
 
 ```{r q2-task}
-## TASK: Create a visual of gdpPercap vs continent
+library(ggplot2)
+df_filtered <- gapminder[gapminder$year == year_min, ]
+df_summarized <- df_filtered %>%
+    group_by(continent) %>%
+    summarise(gdpPercap = sum(gdpPercap, na.rm = TRUE))
+
+
+ggplot(df_filtered, aes(x=continent,y=gdpPercap))+
+   geom_point()+
+  ggtitle("GDP Per Capita by Continent in minimum year")+
+  xlab("Continent")+
+  ylab("GDP Per Capita")
+  theme_dark()
+  
+ggplot(df_filtered, aes(x=country,y=gdpPercap,label = abbreviate(country,  minlength = 3)))+
+   geom_point()+
+  geom_text(vjust = -0.5, size = 2) +  
+  theme(axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank())+
+  ggtitle("GDP Per Capita by Continent in minimum year")+
+  facet_wrap(~continent)+
+  xlab("Country")+
+  ylab("GDP Per Capita")
+  theme_dark()
+  
+
+  no_more_kuwait_max <- df_filtered[!(df_filtered$country == "Kuwait"), ]
+  
+  ggplot(no_more_kuwait_max, aes(x=country,y=gdpPercap,label = abbreviate(country,  minlength = 3)))+
+   geom_point()+
+  geom_text(vjust = -0.5, size = 2) +  
+  theme(axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank())+
+  ggtitle("GDP Per Capita by Continent in minimum year")+
+  facet_wrap(~continent)+
+  xlab("Country")+
+  ylab("GDP Per Capita")
+  theme_dark()
 ```
 
 **Observations**:
 
-- Write your observations here
+-   I can see that Asia and Europe have similar GDPs. Oceania has the smallest GDP by a wide margin. Americas are much lower then I would have thought.
+- Kuwait has a dissproportionatly high GDP percap.
 
 **Difficulties & Approaches**:
 
-- Write your challenges and your approach to solving them
+-   First pass at trying to just scatterplot GDP across continent didn't work because it did not sum up the gdps per continent just plotted each point.
 
-### __q3__ You should have found *at least* three outliers in q2 (but possibly many more!). Identify those outliers (figure out which countries they are).
+- I also faceted a scatter plot by country continent and gdp.
+- Kuwait was so much of an outlier that it squashed the rest of the data into obscurity so I deleted it and redid the facet graphs to find outliers.
+
+### **q3** You should have found *at least* three outliers in q2 (but possibly many more!). Identify those outliers (figure out which countries they are).
 
 ```{r q3-task}
 ## TASK: Identify the outliers from q2
@@ -117,8 +162,8 @@ You may encounter difficulties in visualizing these data; if so document your ch
 
 **Observations**:
 
-- Identify the outlier countries from q2
-  - (Your response here)
+-   Identify the outlier countries from q2
+    -  Kuwait was disproportionately high in gdp percapita to the point where it made most of the data unreadable at the original graph scaling. I had to remove it and plot again to find that both the US and Canada have much higher GDP per capita then the rest of north america. 
 
 *Hint*: For the next task, it's helpful to know a ggplot trick we'll learn in an upcoming exercise: You can use the `data` argument inside any `geom_*` to modify the data that will be plotted *by that geom only*. For instance, you can use this trick to filter a set of points to label:
 
@@ -136,41 +181,139 @@ gapminder %>%
   )
 ```
 
-### __q4__ Create a plot similar to yours from q2 studying both `year_min` and `year_max`. Find a way to highlight the outliers from q3 on your plot *in a way that lets you identify which country is which*. Compare the patterns between `year_min` and `year_max`.
+### **q4** Create a plot similar to yours from q2 studying both `year_min` and `year_max`. Find a way to highlight the outliers from q3 on your plot *in a way that lets you identify which country is which*. Compare the patterns between `year_min` and `year_max`.
 
 *Hint*: We've learned a lot of different ways to show multiple variables; think about using different aesthetics or facets.
 
 ```{r q4-task}
 ## TASK: Create a visual of gdpPercap vs continent
+library(ggplot2)
+df_filtered <- gapminder[gapminder$year == year_min, ]
+df_summarized_min <- df_filtered %>%
+    group_by(continent) %>%
+    summarise(gdpPercap = sum(gdpPercap, na.rm = TRUE))
+
+
+ggplot(df_filtered, aes(x=continent,y=gdpPercap))+
+   geom_point()+
+  ggtitle("GDP Per Capita by Continent in minimum year")+
+  xlab("Continent")+
+  ylab("GDP Per Capita")
+  theme_dark()
+  
+ggplot(df_filtered, aes(x=country,y=gdpPercap,label = abbreviate(country,  minlength = 3)))+
+   geom_point()+
+  geom_text(vjust = -0.5, size = 2) +  
+  theme(axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank())+
+  ggtitle("GDP Per Capita by Continent in minimum year")+
+  facet_wrap(~continent)+
+  xlab("Country")+
+  ylab("GDP Per Capita")
+  theme_dark()
+  
+
+
+  no_more_kuwait_min <- df_filtered[!(df_filtered$country == "Kuwait"), ]
+  
+  ggplot(no_more_kuwait_min, aes(x=country,y=gdpPercap,label = abbreviate(country,  minlength = 3)))+
+   geom_point()+
+  geom_text(vjust = -0.5, size = 2) +  
+  theme(axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank())+
+  ggtitle("GDP Per Capita by Continent in minimum year")+
+  facet_wrap(~continent)+
+  xlab("Country")+
+  ylab("GDP Per Capita")
+  theme_dark()
+
+df_filtered <- gapminder[gapminder$year == year_max, ]
+df_summarized_max <- df_filtered %>%
+    group_by(continent) %>%
+    summarise(gdpPercap = sum(gdpPercap, na.rm = TRUE))
+
+
+ggplot(df_filtered, aes(x=continent,y=gdpPercap))+
+   geom_point()+
+  ggtitle("GDP Per Capita by Continent in maximum year")+
+  xlab("Continent")+
+  ylab("GDP Per Capita")
+  theme_dark()
+  
+ggplot(df_filtered, aes(x=country,y=gdpPercap,label = abbreviate(country,  minlength = 3)))+
+   geom_point()+
+  geom_text(vjust = -0.5, size = 2) +  
+  theme(axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank())+
+  ggtitle("GDP Per Capita by Continent in maximum year")+
+  facet_wrap(~continent)+
+  xlab("Country")+
+  ylab("GDP Per Capita")
+  theme_dark()
+  
+
+
+  no_more_kuwait_max <- df_filtered[!(df_filtered$country == "Kuwait"), ]
+  
+  ggplot(no_more_kuwait_max, aes(x=country,y=gdpPercap,label = abbreviate(country,  minlength = 3)))+
+   geom_point()+
+  geom_text(vjust = -0.5, size = 2) +  
+  theme(axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank())+
+  ggtitle("GDP Per Capita by Continent in maximum year")+
+  facet_wrap(~continent)+
+  xlab("Country")+
+  ylab("GDP Per Capita")
+  theme_dark()
 ```
 
 **Observations**:
 
-- Write your observations here
+-   Kuwait no longer is so disproportionally high and some of its asian peers almost match it
+- Proportionally  the canadians and americans maintain their lead over the rest of the americas.
 
 # Your Own EDA
+
 <!-- -------------------------------------------------- -->
 
 Now it's your turn! We just went through guided EDA considering the GDP per capita at two time points. You can continue looking at outliers, consider different years, repeat the exercise with `lifeExp`, consider the relationship between variables, or something else entirely.
 
-### __q5__ Create *at least* three new figures below. With each figure, try to pose new questions about the data.
+### **q5** Create *at least* three new figures below. With each figure, try to pose new questions about the data.
 
 ```{r q5-task1}
 ## TASK: Your first graph
+ggplot(df_summarized_min, aes(x=continent,y=gdpPercap))+
+   geom_bar(stat = "identity",position = "dodge")+
+  ggtitle("GDP Per Capita by Continent in minimum year")+
+  xlab("Continent")+
+  ylab("GDP Per Capita")
+  theme_dark()
+
 ```
 
-- (Your notes and observations here)
+-   Ocieania is lower then its peers likely due to its proportionally smaller population. 
+-   Africa is disproportionately lower despite its fairly large population due to its underdevelopent.
 
 ```{r q5-task2}
-## TASK: Your second graph
+ggplot(df_summarized_max, aes(x=continent,y=gdpPercap))+
+   geom_bar(stat = "identity",position = "dodge")+
+  ggtitle("GDP Per Capita by Continent in max year")+
+  xlab("Continent")+
+  ylab("GDP Per Capita")
+  theme_dark()
+
 ```
 
-- (Your notes and observations here)
+-   The Magnitude of the numbers involved across the board increased due to inflation and the population of the world increasing.
+- Europe likely gleaned massive benefits from the EU allowing it to pull ahead in GDP per capita.
 
 ```{r q5-task3}
-## TASK: Your third graph
+ggplot(no_more_kuwait_min, aes(x=continent,y=gdpPercap))+
+   geom_bar(stat = "identity",position = "dodge")+
+  ggtitle("GDP Per Capita by Continent in min year without kuwait")+
+  xlab("Continent")+
+  ylab("GDP Per Capita")
+  theme_dark()
 ```
 
-- (Your notes and observations here)
-
-
+-   The removal of kuwait apparently breaks the econmy of the world and skews every single GDP sum even in continents unrelated to it. Clearly kuwait is a lynchpin of the global econmy and removal of it causes total economic collapse.
