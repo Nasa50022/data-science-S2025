@@ -75,7 +75,30 @@ For all five of the visuals, you must show information on *all 16 bacteria*. For
 In this visual you must show *all three* effectiveness values for *all 16 bacteria*. This means **it must be possible to identify each of the 16 bacteria by name.** You must also show whether or not each bacterium is Gram positive or negative.
 
 ```{r q1.1}
-# WRITE YOUR CODE HERE
+
+df_antibiotics %>%
+  pivot_longer(
+    cols = c(penicillin, streptomycin, neomycin),
+    names_to = "antibiotic",
+    values_to = "mic"
+  ) %>%
+  ggplot(aes(x = mic, y = reorder(bacteria, -mic), color = gram)) +
+  geom_point(size = 3) +
+  facet_wrap(~antibiotic, ncol = 3) +
+  scale_x_log10() +
+  geom_vline(xintercept = 0.1, linetype = "dashed", color = "red") +
+  labs(
+    title = "Effectiveness of Antibiotics against Different Bacteria",
+    subtitle = "Lower MIC values indicate greater effectiveness",
+    x = "MIC (log scale)",
+    y = "Bacteria",
+    color = "Gram Stain"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
+  )
 ```
 
 #### Visual 2 (All variables)
@@ -85,7 +108,32 @@ In this visual you must show *all three* effectiveness values for *all 16 bacter
 Note that your visual must be *qualitatively different* from *all* of your other visuals.
 
 ```{r q1.2}
-# WRITE YOUR CODE HERE
+
+df_antibiotics %>%
+  pivot_longer(
+    cols = c(penicillin, streptomycin, neomycin),
+    names_to = "antibiotic",
+    values_to = "mic"
+  ) %>%
+  ggplot(aes(x = antibiotic, y = reorder(bacteria, mic))) +
+  geom_tile(aes(fill = log10(mic))) +
+
+  geom_tile(aes(color = gram), fill = NA, size = 1) +
+  scale_fill_viridis_c(name = "log10(MIC)") +
+  scale_color_manual(values = c("positive" = "red", "negative" = "blue")) +
+  labs(
+    title = "Effectiveness of Antibiotics (Heatmap)",
+    subtitle = "Darker colors indicate greater effectiveness (lower MIC)",
+    x = "Antibiotic",
+    y = "Bacteria", 
+    color = "Gram Stain"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "right",
+    panel.grid = element_blank()
+  )
+
 ```
 
 #### Visual 3 (Some variables)
@@ -95,7 +143,22 @@ In this visual you may show a *subset* of the variables (`penicillin`, `streptom
 Note that your visual must be *qualitatively different* from *all* of your other visuals.
 
 ```{r q1.3}
-# WRITE YOUR CODE HERE
+df_antibiotics %>%
+  ggplot(aes(x = penicillin, y = streptomycin, color = gram, label = bacteria)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_text_repel(size = 3) +
+  scale_x_log10() +
+  scale_y_log10() +
+  geom_hline(yintercept = 0.1, linetype = "dashed", color = "gray50") +
+  geom_vline(xintercept = 0.1, linetype = "dashed", color = "gray50") +
+  labs(
+    title = "Relationship between Penicillin and Streptomycin Effectiveness",
+    subtitle = "Lower values indicate greater effectiveness. Dashed lines show treatment threshold (0.1)",
+    x = "Penicillin MIC (log scale)",
+    y = "Streptomycin MIC (log scale)",
+    color = "Gram Stain"
+  ) +
+  theme_minimal()
 ```
 
 #### Visual 4 (Some variables)
@@ -105,7 +168,27 @@ In this visual you may show a *subset* of the variables (`penicillin`, `streptom
 Note that your visual must be *qualitatively different* from *all* of your other visuals.
 
 ```{r q1.4}
-# WRITE YOUR CODE HERE
+df_antibiotics %>%
+  pivot_longer(
+    cols = c(penicillin, streptomycin, neomycin),
+    names_to = "antibiotic",
+    values_to = "mic"
+  ) %>%
+  ggplot(aes(x = antibiotic, y = mic, fill = gram)) +
+  geom_boxplot(alpha = 0.7) +
+  scale_y_log10() +
+  geom_jitter(width = 0.2, alpha = 0.7, aes(color = bacteria)) +
+  labs(
+    title = "Distribution of Antibiotic Effectiveness by Gram Stain",
+    subtitle = "Lower MIC values indicate greater effectiveness",
+    x = "Antibiotic",
+    y = "MIC (log scale)",
+    fill = "Gram Stain",
+    color = "Bacteria"
+  ) +
+  geom_hline(yintercept = 0.1, linetype = "dashed", color = "red") +
+  theme_minimal() +
+  guides(color = guide_legend(ncol = 2))
 ```
 
 #### Visual 5 (Some variables)
@@ -115,7 +198,42 @@ In this visual you may show a *subset* of the variables (`penicillin`, `streptom
 Note that your visual must be *qualitatively different* from *all* of your other visuals.
 
 ```{r q1.5}
-# WRITE YOUR CODE HERE
+df_antibiotics %>%
+  select(bacteria, penicillin, streptomycin, neomycin, gram) %>%
+  pivot_longer(
+    cols = c(penicillin, streptomycin, neomycin),
+    names_to = "antibiotic",
+    values_to = "mic"
+  ) %>%
+  ggplot(aes(x = antibiotic, y = mic, group = bacteria, color = gram)) +
+  geom_line(alpha = 0.7) +
+  geom_point() +
+  scale_y_log10() +
+  # Add bacteria labels at the end of each line
+  geom_text_repel(
+    data = df_antibiotics %>%
+      pivot_longer(
+        cols = c(penicillin, streptomycin, neomycin),
+        names_to = "antibiotic",
+        values_to = "mic"
+      ) %>%
+      filter(antibiotic == "neomycin"),
+    aes(label = bacteria),
+    hjust = -0.1,
+    direction = "y",
+    size = 3,
+    nudge_x = 0.1
+  ) +
+  labs(
+    title = "Comparison of Antibiotic Effectiveness Patterns",
+    subtitle = "Lower MIC values indicate greater effectiveness",
+    x = "Antibiotic",
+    y = "MIC (log scale)",
+    color = "Gram Stain"
+  ) +
+  geom_hline(yintercept = 0.1, linetype = "dashed", color = "red") +
+  theme_minimal() +
+  theme(plot.margin = margin(r = 120, l = 10, b = 10, t = 10))
 ```
 
 ### __q2__ Assess your visuals
@@ -132,11 +250,11 @@ There are **two questions** below; use your five visuals to help answer both Gui
 
 *Observations*
 - What is your response to the question above?
-  - (Write your response here)
+  - Penicilllin works well on positive gram strains, Streptomycin doesn't really work better on negative or positive gram strain, several Gram-negative bacteria (like Pseudomonas aeruginosa and Klebsiella pneumoniae) show high resistance to penicillin but are more susceptible to neomycin. Bacteria of the same genus tend to show similar patterns of antibiotic susceptibility. For example, Streptococcus species generally respond similarly to the antibiotics
 - Which of your visuals above (1 through 5) is **most effective** at helping to answer this question?
-  - (Write your response here)
+  - I liked visual 2
 - Why?
-  - (Write your response here)
+  - It super concisely allows direct comparison across genera, antibiotic, and gram, and its cleverly arranged to be soft on the eyes and easy to parse compared to the other plots.
 
 #### Guiding Question 2
 
@@ -146,11 +264,11 @@ In 1974 *Diplococcus pneumoniae* was renamed *Streptococcus pneumoniae*, and in 
 
 *Observations*
 - What is your response to the question above?
-  - (Write your response here)
+  - Because DP has a very similar response to all 3 anti biotics and has the same gram strain as the rest of the Streptococcus family. Thus its logical that it was considered so similar that it was placed in that family
 - Which of your visuals above (1 through 5) is **most effective** at helping to answer this question?
-  - (Write your response here)
+  - Visual 2
 - Why?
-  - (Write your response here)
+  - Because DP was lined up right next to the rest of the Strep family and the 3 antibiotics were also lined up neatly together and the gram was visible for each square making it trivially easy to pick up on the pattern.
 
 
 # References
