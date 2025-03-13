@@ -8,7 +8,7 @@ output:
 prerequisites:
   - e-vis05-lines
 ---
-
+e
 *Purpose*: In this challenge, you'll learn how to navigate the U.S. Census Bureau website, programmatically download data from the internet, and perform a county-level population-weighted analysis of current COVID-19 trends. This will give you the base for a very deep investigation of COVID-19, which we'll build upon for Project 1.
 
 <!-- include-rubric -->
