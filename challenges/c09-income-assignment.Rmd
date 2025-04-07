@@ -50,7 +50,8 @@ library(tidyverse)
 
 ```{r q1-task}
 ## TODO: Give the filename for your copy of Table B01003
-filename_pop <- NA_character_
+filename_pop <- "data/ACSDT5Y2018.B01003-Data.csv"
+
 
 ## NOTE: No need to edit
 df_pop <-
@@ -80,7 +81,7 @@ This means that for cases listed as `*****` the US Census Bureau recommends trea
 
 ```{r q2-task}
 ## TODO: Give the filename for your copy of Table S1903
-filename_income <- NA_character_
+filename_income <- "data/ACSST5Y2018.S1903-Data.csv"
 
 ## NOTE: No need to edit
 df_income <-
@@ -100,6 +101,7 @@ assertthat::assert_that(
 )
 
 print("Well done!")
+
 ```
 
 
@@ -121,6 +123,17 @@ df_q3 <-
   ) %>%
   mutate(across(contains("median"), as.numeric)) %>%
 ## TODO: Pivot the data, rename the columns
+  pivot_longer(
+    cols = -c(Geography, `Geographic Area Name`),
+    names_to = c(".value", "category"),
+    names_pattern = "(Estimate|Margin of Error).+([0-9]-person families)",
+    values_drop_na = TRUE
+  ) %>%
+  rename(
+    geographic_area_name = `Geographic Area Name`,
+    income_estimate = Estimate,
+    income_moe = `Margin of Error`
+  ) %>%
   glimpse()
 ```
 
@@ -151,8 +164,14 @@ $$\text{MOE} = 1.645 \times \text{SE}.$$
 ### __q4__ Convert the margin of error to standard error. Additionally, compute a 99% confidence interval on income, and normalize the standard error to `income_CV = income_SE / income_estimate`. Provide these columns with the names `income_SE, income_lo, income_hi, income_CV`.
 
 ```{r q4-task}
-
-df_q4
+df_q4 <-
+  df_q3 %>%
+  mutate(
+    income_SE = income_moe / 1.645,
+    income_lo = income_estimate - 2.576 * income_SE,
+    income_hi = income_estimate + 2.576 * income_SE,
+    income_CV = income_SE / income_estimate
+  )
 ```
 
 Use the following tests to check your work:
@@ -208,7 +227,9 @@ One last wrangling step: We need to join the two datasets so we can compare popu
 ```{r q5-task}
 ## TODO: Join df_q4 and df_pop by the appropriate column
 
-df_data
+df_data <-
+  df_q4 %>%
+  left_join(df_pop, by = c("Geography"))
 ```
 
 # Analysis
@@ -246,13 +267,13 @@ df_data %>%
 **Observations**:
 
 - Document your observations here.
-  - (Your response here)
-  - (Your response here)
+  - I cannot conclude that the larger a family gets the wider range of incomes as locational differences might affect that. 
+- I can conclude that certain areas have greater wealth disparity as across the board the confidence intervals are signifigantly wider on some counties.
   - ...
 - Can you confidently distinguish between household incomes in Suffolk county? Why or why not?
-  - (Your response here)
+  - I cannot because they are all stacked on each other but I suppose that means they all are roughly the same value so maybe yes?
 - Which counties have the widest confidence intervals?
-  - (Your response here)
+  - Nantucket and Dukes counties.
 
 In the next task you'll investigate the relationship between population and uncertainty.
 
@@ -261,14 +282,27 @@ In the next task you'll investigate the relationship between population and unce
 *Hint*: Remember that standard error is a function of *both* variability (e.g. variance) and sample size.
 
 ```{r q7-task}
+df_data %>%
+  ggplot(aes(x = population_estimate, y = income_SE, color = category)) +
+  geom_point(alpha = 0.5) +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(
+    x = "Population Estimate",
+    y = "Income Standard Error",
+    title = "Standard Error vs Population by Family Size"
+  ) +
+  theme_minimal()
 ```
+whoaa thats pretty
+
 
 **Observations**:
 
 - What *overall* trend do you see between `SE` and population? Why might this trend exist?
-  - (Your response here)
+  - As the population estimate increases standard error goes down. I would imagine this is because with higher population estimates you get more data and you get less errors with more data points.
 - What does this *overall* trend tell you about the relative ease of studying small vs large counties?
-  - (Your response here)
+  - Really small counties suck for collecting precise estimates because outliers really can sway data.
 
 # Going Further
 <!-- ----------------------------------------------------------------------- -->
@@ -279,11 +313,33 @@ Now it's your turn! You have income data for every county in the United States: 
 
 ```{r q8-task}
 ## TODO: Pose and answer your own question about the data
+df_data %>%
+  filter(category %in% c("2-person families", "4-person families")) %>%
+  select(geographic_area_name, category, income_estimate) %>%
+  pivot_wider(
+    names_from = category,
+    values_from = income_estimate
+  ) %>%
+  mutate(difference = `4-person families` - `2-person families`) %>%
+  arrange(desc(difference)) %>%
+  slice_head(n = 20) %>%
+  ggplot(aes(x = reorder(geographic_area_name, difference), y = difference)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    x = "County",
+    y = "Income Difference (4-person - 2-person families)",
+    title = "Top 20 Counties by Income Gap Between 4-person and 2-person Families"
+  )
 ```
 
 **Observations**:
 
-- Document your observations here
+- What is the difference between 2person and 4person families in their income earned? 
+
+- generally small counties are showing very skewed data (look at Kent population north of 700 and its technically the biggest difference but its likely just outlines skewing the data)
+
+- Really tiny counties aside generally the difference is about the same amount between the counties in the sample.
 
 Ideas:
 
