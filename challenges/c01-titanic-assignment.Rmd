@@ -77,7 +77,7 @@ df_titanic %>% summarize(total = sum(n))
   Yes the summarized number is different but not by a signifigant amount. 
 - If yes, what might account for those differences?
   - (Your response here)
-  The wikipedia article warns its souls count is an estimate so perhaps the data set provided in this assignment and the article use 2 slightly different estimations of titanic's soul on board count.
+  The wikipedia article warns its souls count is an estimate so perhaps the data set provided in this assignment and the article use 2 slightly different estimations of titanic's soul on board count. For instance the data sets could have been collected at two different times leading to the latter having an updated count based on any new information uncovered. Additionally the method of estimation could be different especially if the two estimates used different sources of evidence ie. crew/passenger manifests newspapers investigative reports.
   - ...
 
 ### __q3__ Create a plot showing the count of persons who *did* survive, along with aesthetics for `Class` and `Sex`. Document your observations below.
@@ -86,22 +86,19 @@ df_titanic %>% summarize(total = sum(n))
 
 ```{r q3-task}
 ## TASK: Visualize counts against `Class` and `Sex`
-library(ggplot2)
-library(tidyverse)
-library(dplyr)
+
 df_titanic <- as_tibble(Titanic)
 df_survivors <- df_titanic %>%
-  group_by(Class,Sex) %>%
-  filter(Survived=="Yes") %>%
-  summarise(tt= sum(n))
+  group_by(Class, Sex) %>%
+  filter(Survived == "Yes") %>%
+  summarise(tt = sum(n))
 
-ggplot(df_survivors, aes(x=Class,y=tt,fill=Sex,))+
-  geom_bar(stat = "identity",position = "dodge")+
-  ggtitle("Count of Survivors by Class and Sex")+
-  xlab("Passenger Class")+
-  ylab("Count of Survivors")
+df_survivors %>% ggplot(aes(x = Class, y = tt, fill = Sex)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  ggtitle("Count of Survivors by Class and Sex") +
+  xlab("Passenger Class") +
+  ylab("Count of Survivors") +
   theme_dark()
- 
 ```
 
 **Observations**:
@@ -132,71 +129,47 @@ df_prop
 ### __q4__ Replicate your visual from q3, but display `Prop` in place of `n`. Document your observations, and note any new/different observations you make in comparison with q3. Is there anything *fishy* in your plot?
 
 ```{r q4-task}
-library(ggplot2)
-library(tidyverse)
-library(dplyr)
-df_prop <-
-  df_titanic %>%
-  group_by(Class, Sex) %>%
-  mutate(
-    Total = sum(n),
-    Prop = n / Total
-  ) %>%
-  ungroup()
-df_prop
 
-ggplot(df_prop, aes(x=Class,y=Prop,fill=Sex,))+
-  geom_bar(stat = "identity",position = "dodge")+
-  ggtitle("Count of Survivors by Class and Sex")+
-  xlab("Passenger Class")+
-  ylab("Count of Survivors")
+
+df_prop %>% ggplot(aes(x = Class, y = Prop, fill = Sex, )) +
+  geom_bar(stat = "identity", position = "dodge") +
+  ggtitle("Count of Survivors by Class and Sex") +
+  xlab("Passenger Class") +
+  ylab("Count of Survivors") + 
   theme_dark()
- 
 ```
 
 **Observations**:
 
 - Write your observations here.
-The code worked as expected
+The code did output a graph. First and second class seem to have a total survival ratio. Additionally the male ratio outnnumbers the female one in third class.
 - Is there anything *fishy* going on in your plot?
   - (Your response here)
-  Yeah the overall passenger and crew survival rates are in the 30ish percent zone but all the bars are way way above that so thats pretty weird. 
+  Yeah the overall passenger and crew survival rates are in the 30ish percent zone but all the bars are way way above that so thats pretty weird. Additionally the code threw an error about some values being deleted due to being outside the scale range.
 
 ### __q5__ Create a plot showing the group-proportion of occupants who *did* survive, along with aesthetics for `Class`, `Sex`, *and* `Age`. Document your observations below.
 
 *Hint*: Don't forget that you can use `facet_grid` to help consider additional variables!
 
 ```{r q5-task}
-library(ggplot2)
-library(tidyverse)
-library(dplyr)
-df_prop <-
-  df_titanic %>%
-  group_by(Class, Sex,Age) %>%
-  mutate(
-    Total = sum(n),
-    Prop = n / Total
-  ) %>%
-  ungroup()
-df_prop
 
-ggplot(df_prop, aes(x=Class,y=Prop,fill=Sex))+
-  geom_bar(stat = "identity",position = "dodge")+
-  facet_wrap(~Age)+
-  ggtitle("Count of Survivors by Class and Sex")+
-  xlab("Passenger Class")+
-  ylab("Count of Survivors")
+
+df_prop %>% ggplot(aes(x = Class, y = Prop, fill = Sex),  color = "black") +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~Age) +
+  ggtitle("Count of Survivors by Class and Sex") +
+  xlab("Passenger Class") +
+  ylab("Count of Survivors") +
   theme_dark()
- 
 ```
 
 **Observations**:
 
 - (Write your observations here.)
-It worked but took some effort it divided them into 2 plots from q4 one for children one for adults.
+The adult data looks okay with first class women surviving the most and third class women surviving the least. Strangely the childrens plot mirrors the q4 plot with all children in first and second class surviving.
 - If you saw something *fishy* in q4 above, use your new plot to explain the fishy-ness.
   - (Your response here)
-  Its fishy because the dataset has a few of the children data values messed up such that the proportion shows all children in said category survived. This wasnt plainly obvious in the first graph but it was enough to look fishy.
+This looks fishy because its statistically impossible (or at least very improbable) that no children in either first or second class died. Similarly in q4 its even more impossible that nobody in first or second class died at all.
 
 # Notes
 <!-- -------------------------------------------------- -->
