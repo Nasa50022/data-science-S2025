@@ -98,11 +98,11 @@ document your observations.
 ``` r
 ## TASK: Plot `price` vs `carat` below
 ## Your code here!
-library(ggplot2)
-ggplot(diamonds, aes(x=seq_along(carat), y=price))+
-  geom_line(color="gold")+
-  ggtitle("price vs carat")+
-  ylab("Price ($)")+
+
+diamonds %>% ggplot(aes(x = carat, y = price)) +
+  geom_point(color = "gold") +
+  ggtitle("price vs carat") +
+  ylab("Price ($)") +
   xlab("mass(carats)")
 ```
 
@@ -110,11 +110,9 @@ ggplot(diamonds, aes(x=seq_along(carat), y=price))+
 
 **Observations**: waow its urine yellow color :D
 
-i thought a line plot wouldnt have it go down all the time but im not
-sure if there are data points at zero between the actual data or if I
-misconfigured the settings.
-
-- (Write your observations here!)
+There seems to be a general trend upwards as carat increases so does
+price. Additionally a lot of data points tend to group up around the
+whole number carat weights. - (Write your observations here!)
 
 ### **q2** Create a visualization showing variables `carat`, `price`, and `cut` simultaneously. Experiment with which variable you assign to which aesthetic (`x`, `y`, etc.) to find an effective visual.
 
@@ -123,18 +121,18 @@ misconfigured the settings.
 ## Your code here!
 
 
-library(ggplot2)
-ggplot(diamonds, aes(x=carat, y=price, color=cut))+
-  geom_point()+
-  facet_wrap(~cut)+
-  ggtitle("Scatter Plot Faceted by Cylinders of price vs carat vs cut")+
+
+diamonds %>% ggplot(aes(x = carat, y = price, color = cut)) +
+  geom_point() +
+  facet_wrap(~cut) +
+  ggtitle("Scatter Plot Faceted by Cylinders of price vs carat vs cut") +
   ylab("price($)")
 ```
 
 ![](c00-diamonds-assignment_files/figure-gfm/q2-task-1.png)<!-- -->
 
 ``` r
-  xlab("mass(carat)")
+xlab("mass(carat)")
 ```
 
     ## $x
@@ -145,8 +143,9 @@ ggplot(diamonds, aes(x=carat, y=price, color=cut))+
 
 **Observations**:
 
-i was struggling to get proper labels working with the multi faceted
-plot.
+The plots generally seem to follow the trend displayed by the combined
+q1 graph. Notably fair seems to diverge slightly more then the rest and
+also has quite a few outliers.
 
 # Communication
 
