@@ -129,10 +129,12 @@ you still need to count, because your numbers *will* be different!
   anywhere. You will have to count them!)
   - 17
 - What percent of homes are *occupied*?
-  - 96.2%
+  - 96.91%
 - Are there any sources of *real* uncertainty in the percent occupied
   you calculated?
-  - No
+  - Islanders will die, new ones will be born and they will move around
+    changing this numbers day to day so yes there are sources of real
+    uncertainty.
 - Are there any sources of *erroneous* uncertainty in the percent
   occupied you calculated?
   - Yes im tired and i probably missed an empty house or two when scroll
