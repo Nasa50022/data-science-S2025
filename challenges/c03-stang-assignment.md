@@ -86,6 +86,10 @@ library(tidyverse)
     ## ✖ dplyr::lag()    masks stats::lag()
     ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 
+``` r
+library(dplyr)
+```
+
 *Background*: In 1946, scientists at the Bureau of Standards tested a
 number of Aluminum plates to determine their
 [elasticity](https://en.wikipedia.org/wiki/Elastic_modulus) and
@@ -152,12 +156,12 @@ value for `names_to`.
 ## TASK: Tidy `df_stang`
 df_stang_long <-
   df_stang %>%
-    pivot_longer(
+  pivot_longer(
     names_to = c(".value", "angle"),
     names_sep = "_",
-     cols = c(-thick, -alloy)
-  )%>%
-mutate(angle = as.integer(angle))%>%
+    cols = c(-thick, -alloy)
+  ) %>%
+  mutate(angle = as.integer(angle)) %>%
   filter(if_all(everything(), ~ . >= 0))
 
 df_stang_long
@@ -184,11 +188,11 @@ Use the following tests to check your work.
 ## NOTE: No need to change this
 ## Names
 assertthat::assert_that(
-              setequal(
-                df_stang_long %>% names,
-                c("thick", "alloy", "angle", "E", "nu")
-              )
-            )
+  setequal(
+    df_stang_long %>% names(),
+    c("thick", "alloy", "angle", "E", "nu")
+  )
+)
 ```
 
     ## [1] TRUE
@@ -203,8 +207,8 @@ assertthat::assert_that(all(dim(df_stang_long) == c(26, 5)))
 ``` r
 ## Type
 assertthat::assert_that(
-              (df_stang_long %>% pull(angle) %>% typeof()) == "integer"
-            )
+  (df_stang_long %>% pull(angle) %>% typeof()) == "integer"
+)
 ```
 
     ## [1] TRUE
@@ -226,8 +230,29 @@ print("Very good!")
 ### **q2** Perform a basic EDA on the aluminum data *without visualization*. Use your analysis to answer the questions under *observations* below. In addition, add your own *specific* question that you’d like to answer about the data—you’ll answer it below in q3.
 
 ``` r
-##I wasnt really sure what to do here because I was able to answer my questions by looking through the dataframe output from q1.
+## I wasnt really sure what to do here because I was able to answer my questions by looking through the dataframe output from q1.
+
+
+
+df_stang_long %>%
+  lapply(unique)
 ```
+
+    ## $thick
+    ## [1] 0.022 0.032 0.064 0.081
+    ## 
+    ## $alloy
+    ## [1] "al_24st"
+    ## 
+    ## $angle
+    ## [1]  0 45 90
+    ## 
+    ## $E
+    ## [1] 10600 10700 10500 10400 10300 10000  9900 10100
+    ## 
+    ## $nu
+    ##  [1] 0.321 0.329 0.310 0.323 0.331 0.318 0.322 0.319 0.326 0.330 0.327 0.328
+    ## [13] 0.320 0.315 0.314 0.312 0.316 0.311
 
 **Observations**:
 
@@ -259,11 +284,11 @@ print("Very good!")
 ``` r
 ## TASK: Investigate your question from q1 here
 library(ggplot2)
-ggplot(df_stang_long, aes(x=thick, y=E, color=angle))+
-  geom_point()+
-  facet_wrap(~angle)+
-  ggtitle("Scatter Plot of thickness vs young's modulus across all measured angles")+
-  ylab("Youngs Modlulus (E)")+
+df_stang_long %>% ggplot(aes(x = thick, y = E, color = angle)) +
+  geom_point() +
+  facet_wrap(~angle) +
+  ggtitle("Scatter Plot of thickness vs young's modulus across all measured angles") +
+  ylab("Youngs Modlulus (E)") +
   xlab("Thickness (Meters)")
 ```
 
@@ -291,7 +316,6 @@ Is this evidence *conclusive* one way or another? Why or why not?
 ``` r
 ## NOTE: No need to change; run this chunk
 df_stang_long %>%
-
   ggplot(aes(nu, E, color = as_factor(thick))) +
   geom_point(size = 3) +
   theme_minimal()
@@ -312,7 +336,8 @@ df_stang_long %>%
   - I do not think this is conclusive enough evidence to say for sure
     that the statement is false however because the data is very
     scattered and the pattern formed is not very defined. More research
-    is required.
+    is required. Perhaps testing different metals or grades of aluminum
+    to see if a pattern emerges or something changes.
 
 # References
 

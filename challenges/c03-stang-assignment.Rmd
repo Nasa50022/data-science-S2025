@@ -39,6 +39,7 @@ Make sure to commit both the challenge report (`report.md` file) and supporting 
 
 ```{r setup}
 library(tidyverse)
+library(dplyr)
 ```
 
 *Background*: In 1946, scientists at the Bureau of Standards tested a number of Aluminum plates to determine their [elasticity](https://en.wikipedia.org/wiki/Elastic_modulus) and [Poisson's ratio](https://en.wikipedia.org/wiki/Poisson%27s_ratio). These are key quantities used in the design of structural members, such as aircraft skin under [buckling loads](https://en.wikipedia.org/wiki/Buckling). These scientists tested plats of various thicknesses, and at different angles with respect to the [rolling](https://en.wikipedia.org/wiki/Rolling_(metalworking)) direction.
@@ -68,12 +69,12 @@ Note that these data are not tidy! The data in this form are convenient for repo
 ## TASK: Tidy `df_stang`
 df_stang_long <-
   df_stang %>%
-    pivot_longer(
+  pivot_longer(
     names_to = c(".value", "angle"),
     names_sep = "_",
-     cols = c(-thick, -alloy)
-  )%>%
-mutate(angle = as.integer(angle))%>%
+    cols = c(-thick, -alloy)
+  ) %>%
+  mutate(angle = as.integer(angle)) %>%
   filter(if_all(everything(), ~ . >= 0))
 
 df_stang_long
@@ -85,17 +86,17 @@ Use the following tests to check your work.
 ## NOTE: No need to change this
 ## Names
 assertthat::assert_that(
-              setequal(
-                df_stang_long %>% names,
-                c("thick", "alloy", "angle", "E", "nu")
-              )
-            )
+  setequal(
+    df_stang_long %>% names(),
+    c("thick", "alloy", "angle", "E", "nu")
+  )
+)
 ## Dimensions
 assertthat::assert_that(all(dim(df_stang_long) == c(26, 5)))
 ## Type
 assertthat::assert_that(
-              (df_stang_long %>% pull(angle) %>% typeof()) == "integer"
-            )
+  (df_stang_long %>% pull(angle) %>% typeof()) == "integer"
+)
 
 print("Very good!")
 ```
@@ -109,7 +110,12 @@ print("Very good!")
 ### __q2__ Perform a basic EDA on the aluminum data *without visualization*. Use your analysis to answer the questions under *observations* below. In addition, add your own *specific* question that you'd like to answer about the data---you'll answer it below in q3.
 
 ```{r q2-task}
-##I wasnt really sure what to do here because I was able to answer my questions by looking through the dataframe output from q1.
+## I wasnt really sure what to do here because I was able to answer my questions by looking through the dataframe output from q1.
+
+
+
+df_stang_long %>%
+  lapply(unique)
 ```
 
 **Observations**:
@@ -133,13 +139,12 @@ print("Very good!")
 ```{r q3-task}
 ## TASK: Investigate your question from q1 here
 library(ggplot2)
-ggplot(df_stang_long, aes(x=thick, y=E, color=angle))+
-  geom_point()+
-  facet_wrap(~angle)+
-  ggtitle("Scatter Plot of thickness vs young's modulus across all measured angles")+
-  ylab("Youngs Modlulus (E)")+
+df_stang_long %>% ggplot(aes(x = thick, y = E, color = angle)) +
+  geom_point() +
+  facet_wrap(~angle) +
+  ggtitle("Scatter Plot of thickness vs young's modulus across all measured angles") +
+  ylab("Youngs Modlulus (E)") +
   xlab("Thickness (Meters)")
-  
 ```
 
 **Observations**:
@@ -155,7 +160,6 @@ Note that the "amount of material" would vary with the thickness of a tested pla
 ```{r q4-vis}
 ## NOTE: No need to change; run this chunk
 df_stang_long %>%
-
   ggplot(aes(nu, E, color = as_factor(thick))) +
   geom_point(size = 3) +
   theme_minimal()
@@ -166,7 +170,7 @@ df_stang_long %>%
 - Does this graph support or contradict the claim above?
   -  It (somewhat) contradicts the claim above because even though the data is super scattered and full of outliers and anomalous values the data (somewhat) suggests that Elasticity decreases the thinner the material gets which means its a property of the material that changes depending on the amount of material and this means it cannot be a intensive material property
 - Is this evidence *conclusive* one way or another?
-  - I do not think this is conclusive enough evidence to say for sure that the statement is false however because the data is very scattered and the pattern formed is not very defined. More research is required. 
+  - I do not think this is conclusive enough evidence to say for sure that the statement is false however because the data is very scattered and the pattern formed is not very defined. More research is required. Perhaps testing different metals or grades of aluminum to see if a pattern emerges or something changes.
 
 # References
 <!-- -------------------------------------------------- -->
